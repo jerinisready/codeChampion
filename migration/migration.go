@@ -7,7 +7,12 @@ import (
 
 func main() {
 	fmt.Println("Applying migration")
-	fmt.Println("Applying user migration")
-	m.Model.AutoMigrate(&m.User{})
+	// m.Model.AutoMigrate(&m.User{})
+	fmt.Println("Applying CodeUser migration")
+	m.Model.AutoMigrate(&m.CodeUser{})
+	fmt.Println("Applying Question migration")
+	m.Model.AutoMigrate(&m.Question{})
+	fmt.Println("Applying Result migration")
+	m.Model.AutoMigrate(&m.Result{})
 	fmt.Println("Finished migration")
 }
