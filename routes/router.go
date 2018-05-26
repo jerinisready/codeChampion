@@ -19,9 +19,15 @@ func InitRouter() *gin.Engine {
 		route.Use(gin.Logger()) // Used in development mode, console print request records
 	}
 
-	route.Use(handle.Errors()) // Error handling
 
+	route.Use(handle.Errors()) // Error handling
 	registerAPIRouter(route)
+
+
+	// router.LoadHTMLGlob("html/*")
+	//
+	// handler := router.Group("/*")
+	// handler.GET("/*", c.Handler)
 
 	// ReverseProxy
 	// router.Use(proxy.ReverseProxy(map[string] string {

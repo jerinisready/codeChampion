@@ -36,12 +36,12 @@ func (a Authorizer) Login(context *gin.Context, email string, password string) {
 	userModel, err := a.backend.FetchUser(&models.User{Email: email})
 
 	if err != nil {
-		context.JSON(http.StatusForbidden, common.NewError("login", errors.New("Not Registered email or invalid password")))
+		context.JSON(http.StatusForbidden, common.NewError("email", errors.New("Not Registered email or invalid password")))
 		return
 	}
 
 	if userModel.CheckPassword(password) != nil {
-		context.JSON(http.StatusForbidden, common.NewError("login", errors.New("Not Registered email or invalid password")))
+		context.JSON(http.StatusForbidden, common.NewError("password", errors.New("Not Registered email or invalid password")))
 		return
 	}
 
