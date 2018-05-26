@@ -1,27 +1,19 @@
 package controllers
 
 import (
-	"net/http"
+	"errors"
+	"fmt"
+	"go-webapp/models"
+	"go-webapp/common"
 	"github.com/gin-gonic/gin"
+	"go-webapp/middleware/authenticate"
+	log "github.com/sirupsen/logrus"
 
 )
 
-func IndexApi(c *gin.Context) {
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "pong",
-	})
-}
-// func Handler(c *gin.Context) {
-//
-// 	c.HTML(http.StatusOK, gin.H{
-// 		"message": "pong",
-// 	})
-// }
-
 type Login struct {
 	Username     string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+	Password 		 string `form:"password" json:"password" binding:"required"`
 }
 
 type AddQuestion struct {
@@ -33,27 +25,93 @@ type AddQuestion struct {
 	output    string `form:"output" json:"output" binding:"required"`
 }
 
-type Result struct {
+type Results struct {
 	qn_id    int	`form:"qn_id" json:"qn_id" binding:"required"`
 	script	 string	`form:"script" json:"script" binding:"required"`
 	filename string	`form:"filename" json:"filename" binding:"required"`
 	lang		 string	`form:"lang" json:"lang" binding:"required"`
 }
 
+// Login API
 func LoginAPI(c *gin.Context) {
 	var json Login
+	fmt.Println("")
+
 	if err := c.ShouldBindJSON(&json); err != nil {
-		// if json.username == "manu" && json.Password == "123" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "success": false})
-		// } else {
-			// c.JSON(http.StatusUnauthorized, gin.H{"status": "unauthorized"})
-		// }
+		c.JSON(400, gin.H{"error": "`username` or `password` field is missing" , "success": false})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "you are about to logged in"})
+	  userModel, err := models.CodeUserGet(&models.CodeUser{Username: json.Username})
+		if err != nil {
+			var userModel models.CodeUser
+			userModel.Username = json.Username
+			userModel.Password = json.Password
+			 err := userModel.Save()
+			if err != nil {
+				c.JSON(400, common.NewError("register", errors.New("Something Went Wrong on Registring an Account")))
+			}else{
+				authentication.SetSession(c, userModel.Username)
+				c.JSON(200, gin.H{"success": true, "error": "", "username": userModel.Username})
+			}
+			return
+		} else {
+			if userModel.Password == json.Password{
+				authentication.SetSession(c, userModel.Username)
+				c.JSON(200, gin.H{"success": true, "error": "", "username": userModel.Username})
+
+				return
+			}else{
+				c.JSON(400, gin.H{"error": "`password` went wrong" , "success": false})
+			}
+		}
 	}
-	status := true
-	c.JSON(http.StatusOK, gin.H{
-		"success": status,
-		"error": "",
-	})
+}
+
+
+// Login API
+func QuestionSet(c *gin.Context) {
+	var data []models.Question
+	var qns []models.QuestionSet
+
+	// ISSUE % ELEMENTS NOT GETTING PASSED
+	err := models.GetQuestions(data)
+	fmt.Println(data)
+	fmt.Println("data :::::::::::: ")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Info("Backend")
+		c.JSON(400, gin.H{"error": err })
+	}else{
+	for i, elem := range data {
+		fmt.Println(i)
+		fmt.Println(elem.Title)
+		qns[i].Title = elem.Title
+		qns[i].Description = elem.Description
+		qns[i].Score	= elem.Score
+		qns[i].Bonus = elem.Bonus
+		qns[i].AttemptedBy = models.QuestionAttemptedBy(elem.ID)
+		qns[i].SolvedBy = models.QuestionCompletedBy(elem.ID)
+		qns[i].BonusCapturedBy = models.BonusCapturedBy(elem.ID)
+	}
+	log.WithFields(log.Fields{
+		"data": qns,
+		"length": len(qns),
+	}).Info("Backend")
+	c.JSON(200, gin.H{"question-set": qns })
+	}
+}
+
+
+
+// Scoreboard API
+func Scoreboard(c *gin.Context) {
+	// var scoretable []models.Scores
+	var str string
+	err := 	models.TopScores(str)
+	if err != nil {
+	c.JSON(200, gin.H{"scoreboard": err })
+	}else{
+		c.JSON(200, gin.H{"scoreboard": str })
+	// ISSUE % EL
+	}
 }

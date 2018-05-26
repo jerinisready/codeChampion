@@ -23,6 +23,8 @@ func registerAPIRouter(router *gin.Engine) {
 	// router.GET("/version", server.Version)
 	api := router.Group("/")
 	api.POST("/i-am-me/", c.LoginAPI)
+	api.GET("/question-set/", c.QuestionSet)
+	api.GET("/scoreboard/", c.Scoreboard)
 
 }
 

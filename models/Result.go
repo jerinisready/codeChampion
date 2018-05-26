@@ -1,20 +1,106 @@
 package models
 
 import (
+	"strings"
+	"strconv"
+	"fmt"
 	"time"
-
 	"github.com/jinzhu/gorm"
 )
+type Scores struct {
+	UserName string
+	Score int
+	CreatedAt	time.Time
+}
+
 
 //Result ...Result Model
 type Result struct {
 	gorm.Model
-	Qn_id     Question `gorm:"ForeignKey:ID"`
-	User  string
+	// GORM SOESANOT SUPPORT DATABASE WELL, including that it cannot handle foreign key or drop column
+	QnID     int `gorm:"ForeignKey:ID"`
+	UserName  string `gorm:"ForeignKey:ID"`
 	Answer string
 	Code  string
-	Created_time  time.Time
 	Score int
 	Status  bool
 	Filename string
 }
+
+func (Result) TableName() string {
+	return "result"
+}
+
+
+func (res Result) Save() (error) {
+	err := db.Save(&res).Error
+		return err
+}
+
+func BonusEligible(qn_id int) bool {
+	var res int
+	db.Raw("SELECT count(*) FROM result WHERE qn_id = ?", qn_id).Scan(&res)
+	if res == 0 {
+		return false
+	}else{
+		return true
+	}
+}
+
+
+func QuestionAttemptedBy(qn_id uint) string {
+	var res int
+	var names []string
+	var sliced string
+	db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ?", qn_id).Scan(&res)
+	if res > 0{
+		db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names)
+		sliced = strings.Join(names, ",")
+		if res > 3{
+   		sliced= sliced + " and " + strconv.Itoa(res - 3) + " others Attempted"
+		}else{sliced = sliced + " Attempted"}
+	}else{sliced = "None Attempted"}
+	return sliced
+}
+
+func QuestionCompletedBy(qn_id uint) string {
+	var res int
+	var names []string
+	var sliced string
+	err := db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ? AND status = true  ", qn_id).Scan(&res)
+	if err != nil {return "None Attempted" }
+	if res > 0{
+		db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names)
+		sliced = strings.Join(names, ",")
+		if res > 3{
+   		sliced= sliced + " " + strconv.Itoa(res - 3) + " others Completed"
+			}else{sliced = sliced + " Completed"}
+		}else{sliced = "None Attempted"}
+	return sliced
+}
+
+func BonusCapturedBy(qn_id uint) string {
+	var user string
+	err := db.Raw("SELECT user_name FROM result WHERE qn_id = ? AND status = true ORDER BY id LIMIT 1", qn_id).Scan(&user)
+	if err != nil {user = "" }
+	return user
+}
+
+
+func GetResults(condition interface{}) (res []Result, e error) {
+	db = Model
+	if err := db.Where(condition).Find(&res).Error; err != nil {
+		return res, err
+	}else{
+		return res, err
+	}
+}
+
+
+func TopScores(mata string) string {
+
+	err := db.Raw("SELECT user_name, sum(score), max(created_at) FROM result GROUP BY user_name ORDER BY sum(score)").Scan(&mata)
+	fmt.Println(err)
+	fmt.Println(mata)
+	return fmt.Stringf(err)
+	}
