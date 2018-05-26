@@ -9,7 +9,7 @@ import (
 	"go-webapp/module/server"
 	"go-webapp/routes"
 	"runtime"
-
+	"fmt"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
@@ -38,8 +38,9 @@ func main() {
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
 	router := routes.InitRouter() // 初始化路由
+
+	fmt.Println(fmt.Sprintf("\n\nGoto http://%s:%s/ in your browser.\n", config.GetEnv().HOST, config.GetEnv().SERVER_PORT))
 
 	server.Run(router)
 
