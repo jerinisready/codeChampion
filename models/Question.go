@@ -19,3 +19,6 @@ type Question struct {
 	Output3 string
 }
 
+func (Question) TableName() string {
+	return "question"
+}
