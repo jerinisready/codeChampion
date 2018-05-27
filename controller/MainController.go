@@ -17,23 +17,6 @@ type Login struct {
 	Password 		 string `form:"password" json:"password" binding:"required"`
 }
 
-type AddQuestion struct {
-	title     string `form:"Title" json:"Title" binding:"required"`
-	description     string `form:"Description" json:"Description" binding:"required"`
-	score     int `form:"Score" json:"Score" binding:"required"`
-	bonus     int `form:"Bonus" json:"Bonus" binding:"required"`
-	input1     string `form:"Input1" json:"Input1" binding:"required"`
-	output1    string `form:"Output1" json:"Output1" binding:"required"`
-	input2     string `form:"Input2" json:"Input2" binding:"required"`
-	output2    string `form:"Output2" json:"Output2" binding:"required"`
-}
-
-type Results struct {
-	qn_id    int	`form:"qn_id" json:"qn_id" binding:"required"`
-	script	 string	`form:"script" json:"script" binding:"required"`
-	filename string	`form:"filename" json:"filename" binding:"required"`
-	lang		 string	`form:"lang" json:"lang" binding:"required"`
-}
 
 // Login API
 func LoginAPI(c *gin.Context) {
@@ -155,6 +138,19 @@ func Temp(c *gin.Context) {
 	// ISSUE % EL
 }
 
+
+type AddQuestion struct {
+	Title     string `form:"Title" json:"Title" binding:"required"`
+	Description     string `form:"Description" json:"Description" binding:"required"`
+	Score     int `form:"Score" json:"Score" binding:"required"`
+	Bonus     int `form:"Bonus" json:"Bonus" binding:"required"`
+	Input1     string `form:"Input1" json:"Input1" binding:"required"`
+	Output1    string `form:"Output1" json:"Output1" binding:"required"`
+	Input2     string `form:"Input2" json:"Input2" binding:"required"`
+	Output2    string `form:"Output2" json:"Output2" binding:"required"`
+}
+
+
 func AddQuestionAPI(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
@@ -168,14 +164,14 @@ func AddQuestionAPI(c *gin.Context) {
 		return
 	} else {
 			var qn models.Question
-			qn.Title = json.title
-			qn.Description = json.description
-			qn.Score = json.score
-			qn.Bonus = json.bonus
-			qn.Input1 = json.input1
-			qn.Output1 = json.output1
-			qn.Input2 = json.input2
-			qn.Output2 = json.output2
+			qn.Title = json.Title
+			qn.Description = json.Description
+			qn.Score = json.Score
+			qn.Bonus = json.Bonus
+			qn.Input1 = json.Input1
+			qn.Output1 = json.Output1
+			qn.Input2 = json.Input2
+			qn.Output2 = json.Output2
 			err := qn.Save()
 			if err != nil{
 					c.JSON(200, gin.H{"success": false, "error": err })
@@ -208,6 +204,14 @@ func Fixture(c *gin.Context) {
 }
 
 
+type Results struct {
+	QnId    int	`form:"qn_id" json:"qn_id" binding:"required"`
+	Script	 string	`form:"script" json:"script" binding:"required"`
+	Filename string	`form:"filename" json:"filename" binding:"required"`
+	Lang		 string	`form:"lang" json:"lang" binding:"required"`
+}
+
+
 
 func Solution(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
@@ -221,13 +225,14 @@ func Solution(c *gin.Context) {
 			c.JSON(400, gin.H{"error": err.Error() , "success": false})
 	} else {
 		fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-		fmt.Println(json.qn_id)
-		fmt.Println(json.script)
-		fmt.Println(json.filename)
-		fmt.Println(json.lang)
+		fmt.Println(json)
+		fmt.Println(json.QnId)
+		fmt.Println(json.Script)
+		fmt.Println(json.Filename)
+		fmt.Println(json.Lang)
 		fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 			var qn models.Question
-			qn, _ = models.GetQuestionWithID(json.qn_id)
+			qn, _ = models.GetQuestionWithID(json.QnId)
 			fmt.Println(qn)
 			out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!")
 			// var scoretable []models.Scores
@@ -240,7 +245,7 @@ func Solution(c *gin.Context) {
 			}
   		c.JSON(200, gin.H{"success": success, "message":message, "output":out, "errors": ""})
 			// execution.Compile(json.filename, json.script,json.lang, input, output )
-			qn1 := models.Result{QnID:json.qn_id, UserName:"", Answer:json.script, Score:0, Status:false,Filename: json.filename, Code: json.lang}
+			qn1 := models.Result{QnID:json.QnId, UserName:"", Answer:json.Script, Score:0, Status:false,Filename: json.Filename, Code: json.Lang}
 			_ = qn1.Save()
 	}
 }
