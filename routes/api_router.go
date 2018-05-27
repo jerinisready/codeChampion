@@ -28,6 +28,10 @@ func registerAPIRouter(router *gin.Engine) {
 
 
 	api.GET("/temp/", c.Temp)
+	api.GET("/fixture/", c.Fixture)
+	api.POST("/add-question/", c.AddQuestionAPI)
+	api.POST("/compile/", c.Solution)
+	// api.GET("/scoreboard/", c.Scoreboard)
 }
 
 
