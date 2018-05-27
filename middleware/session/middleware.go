@@ -5,6 +5,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// 
+// func GetSessionUser() gin.HandlerFunc {
+// 	return func(context *gin.Context) {
+// 		cookies := context.Request.Cookies()
+// 		log.WithFields(log.Fields{
+// 			"cookies": cookies,
+// 		}).Info("Reading cookies")
+// 	}
+
 func SessionMiddleWare() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		cookies := context.Request.Cookies()
