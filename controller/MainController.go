@@ -37,6 +37,12 @@ type Results struct {
 
 // Login API
 func LoginAPI(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Content-Type", "application/json")
+
 	var json Login
 	fmt.Println("")
 
@@ -71,6 +77,12 @@ func LoginAPI(c *gin.Context) {
 
 // Login API
 func QuestionSet(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Content-Type", "application/json")
+
 	var data []models.Question
 	var qns []models.QuestionSet
 	var qn models.QuestionSet
@@ -114,6 +126,12 @@ func QuestionSet(c *gin.Context) {
 
 // Scoreboard API
 func Scoreboard(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Content-Type", "application/json")
+
 	// var scoretable []models.Scores
 	var str []models.Scores
 	str, err := 	models.TopScores()
@@ -138,6 +156,12 @@ func Temp(c *gin.Context) {
 }
 
 func AddQuestionAPI(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Content-Type", "application/json")
+
 	var json AddQuestion
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(400, gin.H{"error": err.Error() , "success": false})
@@ -162,6 +186,12 @@ func AddQuestionAPI(c *gin.Context) {
 }
 
 func Fixture(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Content-Type", "application/json")
+
 	qn1 := models.Question{Title:"Hello World", Description:"Print Hello World", Score:10, Bonus: 5, Input1:"", Output1:"Hello World!"}
 	_ = qn1.Save()
 	qn6 := models.Question{Title:"Sumk of two numbers", Description:"Sumk of two numbers", Score:15, Bonus: 5, Input1:"2\n3", Output1:"5", Input2:"4\n6", Output2:"10"}
@@ -180,6 +210,12 @@ func Fixture(c *gin.Context) {
 
 
 func Solution(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
+	c.Header("Content-Type", "application/json")
+
 	var json Results
 	if err := c.ShouldBindJSON(&json); err != nil {
 			c.JSON(400, gin.H{"error": err.Error() , "success": false})
@@ -193,10 +229,18 @@ func Solution(c *gin.Context) {
 			var qn models.Question
 			qn, _ = models.GetQuestionWithID(json.qn_id)
 			fmt.Println(qn)
+			out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!")
+			// var scoretable []models.Scores
+			var message string
+			success := bool(out =="")
+			if success {
+				message = "You Have completed this Level! Go For Next Program"
+			}else{
+				message = "Please Correct Errors and try again"
+			}
+  		c.JSON(200, gin.H{"success": success, "message":message, "output":out, "errors": ""})
 			// execution.Compile(json.filename, json.script,json.lang, input, output )
 			qn1 := models.Result{QnID:json.qn_id, UserName:"", Answer:json.script, Score:0, Status:false,Filename: json.filename, Code: json.lang}
 			_ = qn1.Save()
-
-			c.JSON(200, gin.H{"context": "successfully Loaded!" })
 	}
 }
