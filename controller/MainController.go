@@ -6,6 +6,7 @@ import (
 	"go-webapp/models"
 	"go-webapp/compileunit"
 	"go-webapp/common"
+	"go-webapp/middleware/header"
 	"github.com/gin-gonic/gin"
 	"go-webapp/middleware/authenticate"
 	log "github.com/sirupsen/logrus"
@@ -20,15 +21,11 @@ type Login struct {
 
 // Login API
 func LoginAPI(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Content-Type", "application/json")
 
 	var json Login
 	fmt.Println("")
-
+	header.Secure(c)
+	header.Options(c)
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(400, gin.H{"error": "`username` or `password` field is missing" , "success": false})
 	} else {
@@ -60,11 +57,8 @@ func LoginAPI(c *gin.Context) {
 
 // Login API
 func QuestionSet(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Content-Type", "application/json")
+	header.Secure(c)
+	header.Options(c)
 
 	var data []models.Question
 	var qns []models.QuestionSet
@@ -101,25 +95,22 @@ func QuestionSet(c *gin.Context) {
 		"data": qns[0],
 		"length": len(qns),
 	}).Info("Backend")
-	c.JSON(200, gin.H{"question-set": qns })
+	c.JSON(200, gin.H{"questionset": qns[:3],
+		 "error": nil })
 	}
 }
 
 
-
 // Scoreboard API
 func Scoreboard(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Content-Type", "application/json")
+	header.Secure(c)
+	header.Options(c)
 
 	// var scoretable []models.Scores
 	var str []models.Scores
 	str, err := 	models.TopScores()
 	if err != nil {
-	c.JSON(200, gin.H{"error": err, "scoreboard": nil })
+		c.JSON(200, gin.H{"error": err, "scoreboard": nil })
 	}else{
 		c.JSON(200, gin.H{"scoreboard": str,
 			"error": nil })
@@ -130,8 +121,8 @@ func Scoreboard(c *gin.Context) {
 // Scoreboard API
 func Temp(c *gin.Context) {
 
- out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!")
-
+ // out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!")
+	out := ""
 
 	// var scoretable []models.Scores
 		c.JSON(200, gin.H{"output":out})
@@ -142,21 +133,18 @@ func Temp(c *gin.Context) {
 type AddQuestion struct {
 	Title     string `form:"Title" json:"Title" binding:"required"`
 	Description     string `form:"Description" json:"Description" binding:"required"`
-	Score     int `form:"Score" json:"Score" binding:"required"`
-	Bonus     int `form:"Bonus" json:"Bonus" binding:"required"`
-	Input1     string `form:"Input1" json:"Input1" binding:"required"`
+	Score     string `form:"Score" json:"Score" `
+	Bonus     string `form:"Bonus" json:"Bonus"`
+	Input1     string `form:"Input1" json:"Input1" `
 	Output1    string `form:"Output1" json:"Output1" binding:"required"`
-	Input2     string `form:"Input2" json:"Input2" binding:"required"`
-	Output2    string `form:"Output2" json:"Output2" binding:"required"`
+	Input2     string `form:"Input2" json:"Input2" `
+	Output2    string `form:"Output2" json:"Output2" `
 }
 
 
 func AddQuestionAPI(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Content-Type", "application/json")
+	header.Secure(c)
+	header.Options(c)
 
 	var json AddQuestion
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -166,8 +154,8 @@ func AddQuestionAPI(c *gin.Context) {
 			var qn models.Question
 			qn.Title = json.Title
 			qn.Description = json.Description
-			qn.Score = json.Score
-			qn.Bonus = json.Bonus
+			qn.Score = 10
+			qn.Bonus = 5
 			qn.Input1 = json.Input1
 			qn.Output1 = json.Output1
 			qn.Input2 = json.Input2
@@ -182,11 +170,6 @@ func AddQuestionAPI(c *gin.Context) {
 }
 
 func Fixture(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Content-Type", "application/json")
 
 	qn1 := models.Question{Title:"Hello World", Description:"Print Hello World", Score:10, Bonus: 5, Input1:"", Output1:"Hello World!"}
 	_ = qn1.Save()
@@ -205,6 +188,7 @@ func Fixture(c *gin.Context) {
 
 
 type Results struct {
+	Username string `form:"username" json:"username" binding:"required"`
 	QnId    int	`form:"qn_id" json:"qn_id" binding:"required"`
 	Script	 string	`form:"script" json:"script" binding:"required"`
 	Filename string	`form:"filename" json:"filename" binding:"required"`
@@ -214,11 +198,8 @@ type Results struct {
 
 
 func Solution(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-	c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
-	c.Header("Content-Type", "application/json")
+	header.Secure(c)
+	header.Options(c)
 
 	var json Results
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -231,21 +212,32 @@ func Solution(c *gin.Context) {
 		fmt.Println(json.Filename)
 		fmt.Println(json.Lang)
 		fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-			var qn models.Question
-			qn, _ = models.GetQuestionWithID(json.QnId)
-			fmt.Println(qn)
-			out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!")
-			// var scoretable []models.Scores
-			var message string
-			success := bool(out =="")
-			if success {
-				message = "You Have completed this Level! Go For Next Program"
-			}else{
-				message = "Please Correct Errors and try again"
-			}
-  		c.JSON(200, gin.H{"success": success, "message":message, "output":out, "errors": ""})
-			// execution.Compile(json.filename, json.script,json.lang, input, output )
-			qn1 := models.Result{QnID:json.QnId, UserName:"", Answer:json.Script, Score:0, Status:false,Filename: json.Filename, Code: json.Lang}
-			_ = qn1.Save()
+		var qn models.Question
+		qn, _ = models.GetQuestionWithID(json.QnId)
+		fmt.Println(qn)
+		out := execution.Complier(json.Filename, json.Script, json.Lang, qn.Input1, qn.Output1, qn.Input2, qn.Output2, )
+		// out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!", "-", "-" )
+		// var scoretable []models.Scores
+		var score int
+		score = 0
+		if out == "" {
+				score = qn.Score
+				if models.BonusEligible(json.QnId){
+						score = score + qn.Bonus
+				}else{
+
+				}
+		}
+		var message string
+		success := bool(out =="")
+		if success {
+			message = "You Have completed this Level! Go For Next Program"
+		}else{
+			message = "Please Correct Errors and try again"
+		}
+		c.JSON(200, gin.H{"success": success, "message":message, "output":out, "errors": ""})
+		// execution.Compile(json.filename, json.script,json.lang, input, output )
+		qn1 := models.Result{QnID:json.QnId, UserName:json.Username, Answer:json.Script, Score:score, Status:false,Filename: json.Filename, Code: json.Lang}
+		_ = qn1.Save()
 	}
 }

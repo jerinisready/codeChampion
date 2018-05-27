@@ -12,5 +12,3 @@ func registerWebAppRouter(router *gin.Engine) {
 	webapp.GET("", c.HomePage)
 
 }
-
-
