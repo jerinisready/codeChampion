@@ -22,7 +22,7 @@ type Question struct {
 }
 
 type QuestionSet struct {
-
+	ID uint
 	Title string
 	Description string
 	Score	int

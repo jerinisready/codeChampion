@@ -1,7 +1,6 @@
 package models
 
 import (
-	"strings"
 	"strconv"
 	"fmt"
 	"time"
@@ -46,35 +45,89 @@ func BonusEligible(qn_id int) bool {
 	}
 }
 
+type Counter struct{
+	Count int
+}
+
+type Usernames struct{
+	Username string
+}
 
 func QuestionAttemptedBy(qn_id uint) string {
-	var res int
-	var names []string
+	var res Counter
+	var names []Usernames
 	var sliced string
-	db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ?", qn_id).Scan(&res)
-	if res > 0{
-		db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names)
-		sliced = strings.Join(names, ",")
-		if res > 3{
-   		sliced= sliced + " and " + strconv.Itoa(res - 3) + " others Attempted"
-		}else{sliced = sliced + " Attempted"}
-	}else{sliced = "None Attempted"}
+	err := db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ?", qn_id).Scan(&res).Error
+  if err != nil {fmt.Println(err.Error())
+		fmt.Println("Select count on Question attempted by")
+		return "None"
+	}
+	if res.Count > 0{
+		err := db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names).Error
+		if err != nil {return strconv.Itoa(res.Count) + " Attempted" }
+
+		fmt.Println("Select names on Question attempted by")
+
+		if err != nil {fmt.Println(err.Error())
+			return "None"
+		}
+		var name string
+		if len(names) > 0 {
+			fmt.Println("more than 0")
+				name = names[0].Username
+		}
+		if len(names) > 1 {
+			fmt.Println("more than 1")
+				name = name + ", " + names[1].Username
+		}
+		if len(names) > 2 {
+			fmt.Println("more than 2")
+			name = name + ", " + names[2].Username
+		}
+
+		if len(names) > 3 {
+			fmt.Println("more than 3")
+
+			name = name + " and " + strconv.Itoa(res.Count - 3) + " others "
+		}
+		sliced = name + " Attempted"
+
+	}else{
+		fmt.Println("No one attempted")
+		sliced = "None Attempted"
+	}
 	return sliced
 }
 
 func QuestionCompletedBy(qn_id uint) string {
-	var res int
-	var names []string
+	var res Counter
+	var names []Usernames
 	var sliced string
 	err := db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ? AND status = true  ", qn_id).Scan(&res).Error
 	if err != nil {return "None Attempted" }
-	if res > 0{
-		db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names)
-		sliced = strings.Join(names, ",")
-		if res > 3{
-   		sliced= sliced + " " + strconv.Itoa(res - 3) + " others Completed"
-			}else{sliced = sliced + " Completed"}
-		}else{sliced = "None Attempted"}
+	if res.Count > 0{
+		err := db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names).Error
+		if err != nil {return strconv.Itoa(res.Count) + " Completed" }
+
+
+				if err != nil {fmt.Println(err.Error())
+					return "None"
+				}
+				var name string
+				if len(names) > 0 {
+						name = names[0].Username
+				}
+				if len(names) > 1 {
+						name = name + ", " + names[1].Username
+				}
+				if len(names) > 2 {
+					name = name + ", " + names[2].Username
+				}
+				if len(names) > 3 {
+					name = name + " and " + strconv.Itoa(res.Count - 3) + " others "
+				}
+				sliced = name + " Completed"
+			}else{sliced = "None Completed"}
 	return sliced
 }
 
