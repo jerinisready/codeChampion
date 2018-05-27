@@ -1,48 +1,72 @@
 package models
 
 import (
-	"time"
-
+	"fmt"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
+
 )
+
+var db  *gorm.DB
+
 
 //User ...User Model
 type CodeUser struct {
 	gorm.Model
-	UserName  string
-	Password  string
-	LastLogin time.Time
+	Username  string	`gorm:"type:varchar(100);unique_index"`
+	Password  string	`gorm:"type:varchar(100)"`
 }
-
 func (CodeUser) TableName() string {
 	return "codeuser"
 }
 
 
+func (cu CodeUser) Save() (error) {
+	err := db.Save(&cu).Error
+		return err
+}
 
-
-// What's bcrypt? https://en.wikipedia.org/wiki/Bcrypt
-// Golang bcrypt doc: https://godoc.org/golang.org/x/crypto/bcrypt
-// You can change the value in bcrypt.DefaultCost to adjust the security index.
-// 	err := userModel.setPassword("password0")
-// func (u *User) SetPassword(password string) error {
-// 	if len(password) == 0 {
-// 		return errors.New("password should not be empty!")
-// 	}
-// 	bytePassword := []byte(password)
-// 	// Make sure the second param `bcrypt generator cost` between [4, 32)
-// 	passwordHash, _ := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
-// 	u.Password = string(passwordHash)
-// 	return nil
+// func (b Backend) FetchUser(condition interface{}) (user models.User, e error) {
+// 	var model models.User
+// 	err := b.db.Where(condition).First(&model).Error
+// 	return model, err
 // }
 
-// Database will only save the hashed string, you should check it by util function.
-// 	if err := serModel.checkPassword("password0"); err != nil { password error }
-// func (u *User) CheckPassword(password string) error {
-// 	bytePassword := []byte(password)
-// 	byteHashedPassword := []byte(u.Password)
-// 	return bcrypt.CompareHashAndPassword(byteHashedPassword, bytePassword)
-// }
+	// var user CodeUser
+func CodeUserGet(condition interface{}) (user CodeUser, e error) {
+	db = Model
+	// var user CodeUser
+	fmt.Println("Going to db")
+	// err := db.Where(condition).First(&user).Error
+	log.WithFields(log.Fields{
+		"db": db,
+	}).Info("Backend")
+
+
+	if err := db.Where(condition).First(&user).Error; err != nil {
+		fmt.Println("Error Occured	")
+		return user, err
+    // error handling...
+	}else{
+		fmt.Println("Error Not Occured	")
+		return user, err
+	}
+
+
+	// log.WithFields(log.Fields{
+	// 	"error": err,
+	// }).Info("Backend")
+
+	// if err != nil{
+	// 	fmt.Println("Error is There...............")
+		// 	fmt.Println(err)
+	// }else{
+	// 	fmt.Println("Error is Not There...............")
+	// 	fmt.Println(user)
+
+	// return user, err
+}
+
 
 //Refer https://github.com/demo-apps/go-gin-app
 //https://github.com/gothinkster/golang-gin-realworld-example-app/blob/master/users/models.go

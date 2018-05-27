@@ -6,7 +6,6 @@ import (
 	"go-webapp/serializer"
 	"go-webapp/validators"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
