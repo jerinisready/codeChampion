@@ -1,74 +1,38 @@
-# Gin based REST API Project
+API DOC:
+https://docs.google.com/document/d/1eh7dEkkvUu1h4Wa-MNOPCdwwTYX7IpOtey6Rtluinqw/edit?usp=sharing
+
+Hosted IP : http://206.189.154.20:9000/   [GO BASED BACKEND]
+Hosted IP : http://206.189.154.20:80/   [React Based Frontend ]
 
 
-#### Environment Requirements
+We have Partially Completed the Challenge.
 
-- GO >= 1.8
+Abstract
 
-### Install
+CodeChampaign is a Go- Gin / React based Webapp to conduct Coding competations.
 
-```
-cd $GOPATH/src
-
-git clone https://github.com/sayonetech/gin-webapp.git
-
-```
-### Load Dependency
-
-```
-cd gin-webapp
-make deps
-```
-
-#### Build Service
-```
-make build
-```
-
-#### Run the Service
-```
-make
-```
-
-visit by browser: http://localhost:4000/api/index
-
-#### Database Migration
-```
-make migrate
-```
-
-#### Local Deployment
-
-We use [fresh](https://github.com/pilu/fresh) Build and (re)start go web apps after saving/creating/deleting source files.
-#### Installation
-
-    go get github.com/pilu/fresh
+If Succeeded We might can run more than `
+cobol,
+lisp
+elixir
+go
+ruby
+java
+c++
+c
+python
 
 
-Start fresh:
+anguages in the platform and is scalable
 
-    fresh
+Login / Register
 
-## TODO
+take a random username and password and enter into hiome, if there is no previous usage for that username, a new account wil be automatically created for you!!!
 
-- [x] Database/ORM
-- [x] Migration
-- [x] Swagger Doc
-- [x] GZip https://github.com/gin-contrib/gzip
-- [] Authentication
-- [] Session
-- [] ElasticSearch
-- [] Task Queue
-- [] SMTP
-- [] Middleware
-- [] Test
-- [] Cache
+ScoreBoard
 
+Anyone who Play can Visit the Scoreboard To View the current status of the players.
 
-## Task Q
-  * https://github.com/gocelery/gocelery
-  * https://github.com/RichardKnop/machinery
-  * https://eng.uber.com/cherami/
+Questions
 
-## Email
- * https://github.com/go-gomail/gomail
+the added Questions is listed at Questions tab. You can read them ; and go forward to attempt them  
