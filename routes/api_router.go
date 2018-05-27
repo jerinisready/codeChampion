@@ -25,6 +25,9 @@ func registerAPIRouter(router *gin.Engine) {
 	api.POST("/i-am-me/", c.LoginAPI)
 	api.GET("/question-set/", c.QuestionSet)
 	api.GET("/scoreboard/", c.Scoreboard)
+
+
+	api.GET("/temp/", c.Temp)
 }
 
 

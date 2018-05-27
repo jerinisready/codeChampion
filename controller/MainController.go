@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"go-webapp/models"
+	"go-webapp/compileunit"
 	"go-webapp/common"
 	"github.com/gin-gonic/gin"
 	"go-webapp/middleware/authenticate"
@@ -122,4 +123,14 @@ func Scoreboard(c *gin.Context) {
 	}
 }
 
+// Scoreboard API
+func Temp(c *gin.Context) {
 
+ out := execution.Complier("hello.py", "print 'Hello World!'", "python", "", "Hello World!")
+
+
+	// var scoretable []models.Scores
+		c.JSON(200, gin.H{"output":out})
+	// ISSUE % EL
+
+}
