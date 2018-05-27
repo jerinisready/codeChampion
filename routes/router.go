@@ -22,7 +22,9 @@ func InitRouter() *gin.Engine {
 
 	route.Use(handle.Errors()) // Error handling
 	registerAPIRouter(route)
-
+	route.LoadHTMLGlob("templates/*")
+	route.Static("/assets", "./assets")
+    registerWebAppRouter(route)
 
 	// router.LoadHTMLGlob("html/*")
 	//
