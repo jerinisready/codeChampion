@@ -30,9 +30,6 @@ type Result struct {
 func (Result) TableName() string {
 	return "result"
 }
-<<<<<<< HEAD
-=======
-
 
 func (res Result) Save() (error) {
 	err := db.Save(&res).Error
@@ -109,4 +106,3 @@ func TopScores() ([]Scores, error) {
 
 	return meta, err
 	}
->>>>>>> jerin
