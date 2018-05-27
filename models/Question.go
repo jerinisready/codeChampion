@@ -9,7 +9,7 @@ import (
 //Question ...Question Model
 type Question struct {
 	gorm.Model
-	ID          uint
+	// Id          uint		`gorm:"primary_key"`
 	Title     string		`gorm:"type:varchar(255)"`
 	Description  string		`gorm:"type:varchar(1000)"`
 	Score int
@@ -22,6 +22,7 @@ type Question struct {
 }
 
 type QuestionSet struct {
+
 	Title string
 	Description string
 	Score	int
@@ -37,21 +38,18 @@ func (Question) TableName() string {
 }
 
 func (cu Question) Save() (error) {
-	// db = Model
-
 	err := db.Save(&cu).Error
 		return err
 }
 
 
-func GetQuestions(qn []Question) []Question {
-	// db = Model
+func GetQuestions() ([]Question, error) {
+	var qn []Question
 	err := db.Find(&qn).Error
 	fmt.Println(len(qn))
 	fmt.Println("**********************")
 	fmt.Println(err)
-
-	return  qn
+	return  qn, err
 }
 
 func GetQuestionWithID(id int)(qn Question, e error){

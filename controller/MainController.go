@@ -71,30 +71,36 @@ func LoginAPI(c *gin.Context) {
 func QuestionSet(c *gin.Context) {
 	var data []models.Question
 	var qns []models.QuestionSet
+	var qn models.QuestionSet
 
-	// ISSUE % ELEMENTS NOT GETTING PASSED
-	err := models.GetQuestions(data)
-	fmt.Println(data)
-	fmt.Println("data :::::::::::: ")
+	data, err := models.GetQuestions()
+	if err != nil{
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Warn("Get Questions")
+	}
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Info("Backend")
+		}).Info("Get Questions")
 		c.JSON(400, gin.H{"error": err })
 	}else{
-	for i, elem := range data {
-		fmt.Println(i)
-		fmt.Println(elem.Title)
-		qns[i].Title = elem.Title
-		qns[i].Description = elem.Description
-		qns[i].Score	= elem.Score
-		qns[i].Bonus = elem.Bonus
-		qns[i].AttemptedBy = models.QuestionAttemptedBy(elem.ID)
-		qns[i].SolvedBy = models.QuestionCompletedBy(elem.ID)
-		qns[i].BonusCapturedBy = models.BonusCapturedBy(elem.ID)
+	for _, elem := range data {
+		fmt.Println(elem.ID)
+		fmt.Println("elem.ID")
+		qn.Title = elem.Title
+		qn.Description = elem.Description
+		qn.Score	= elem.Score
+		qn.Bonus = elem.Bonus
+		qn.AttemptedBy = models.QuestionAttemptedBy(elem.ID)
+		qn.SolvedBy = models.QuestionCompletedBy(elem.ID)
+		qn.BonusCapturedBy = models.BonusCapturedBy(elem.ID)
+		qns = append(qns, qn)
+		fmt.Println(len(qns))
+
 	}
 	log.WithFields(log.Fields{
-		"data": qns,
+		"data": qns[0],
 		"length": len(qns),
 	}).Info("Backend")
 	c.JSON(200, gin.H{"question-set": qns })
@@ -106,8 +112,8 @@ func QuestionSet(c *gin.Context) {
 // Scoreboard API
 func Scoreboard(c *gin.Context) {
 	// var scoretable []models.Scores
-	var str string
-	err := 	models.TopScores(str)
+	var str []models.Scores
+	str, err := 	models.TopScores()
 	if err != nil {
 	c.JSON(200, gin.H{"scoreboard": err })
 	}else{

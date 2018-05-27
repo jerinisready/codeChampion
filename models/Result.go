@@ -67,7 +67,7 @@ func QuestionCompletedBy(qn_id uint) string {
 	var res int
 	var names []string
 	var sliced string
-	err := db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ? AND status = true  ", qn_id).Scan(&res)
+	err := db.Raw("SELECT count(DISTINCT user_name) FROM result WHERE qn_id = ? AND status = true  ", qn_id).Scan(&res).Error
 	if err != nil {return "None Attempted" }
 	if res > 0{
 		db.Raw("SELECT DISTINCT user_name FROM result WHERE qn_id = ? LIMIT 3", qn_id).Scan(&names)
@@ -81,7 +81,7 @@ func QuestionCompletedBy(qn_id uint) string {
 
 func BonusCapturedBy(qn_id uint) string {
 	var user string
-	err := db.Raw("SELECT user_name FROM result WHERE qn_id = ? AND status = true ORDER BY id LIMIT 1", qn_id).Scan(&user)
+	err := db.Raw("SELECT user_name FROM result WHERE qn_id = ? AND status = true ORDER BY id LIMIT 1", qn_id).Scan(&user).Error
 	if err != nil {user = "" }
 	return user
 }
@@ -97,10 +97,13 @@ func GetResults(condition interface{}) (res []Result, e error) {
 }
 
 
-func TopScores(mata string) string {
-
-	err := db.Raw("SELECT user_name, sum(score), max(created_at) FROM result GROUP BY user_name ORDER BY sum(score)").Scan(&mata)
+func TopScores() ([]Scores, error) {
+	var meta []Scores
+	err := db.Raw("SELECT user_name, sum(score) as score, max(created_at) as created_at FROM result GROUP BY user_name ORDER BY sum(score) DESC").Scan(&meta).Error
 	fmt.Println(err)
-	fmt.Println(mata)
-	return fmt.Stringf(err)
+	fmt.Println(meta)
+	// fmt.Println(meta[0])
+	// fmt.Println(meta[0].UserName)
+
+	return meta, err
 	}
