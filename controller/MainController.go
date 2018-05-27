@@ -95,7 +95,7 @@ func QuestionSet(c *gin.Context) {
 		"data": qns[0],
 		"length": len(qns),
 	}).Info("Backend")
-	c.JSON(200, gin.H{"questionset": qns[:3],
+	c.JSON(200, gin.H{"questionset": qns[:15],
 		 "error": nil })
 	}
 }
